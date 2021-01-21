@@ -1,0 +1,90 @@
+@mixin position($t: null, $r: null, $b: null, $l: null) {
+    bottom: $b; left: $l; right: $r; top: $t;
+}
+
+@mixin absolute($t: null, $r: null, $b: null, $l: null) {
+    @include position($t, $r, $b, $l);
+    position: absolute;
+}
+
+@mixin fixed($t: null, $r: null, $b: null, $l: null) {
+    @include position($t, $r, $b, $l);
+    position: fixed;
+}
+
+.header {
+    padding: 1rem;
+}
+
+.editor {
+    border: 1px solid #666;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+$pointer-size: 14px;
+
+.channel {
+    @include absolute(0, 0, 0, 0);
+    border-radius: 0;
+    opacity: .2;
+    pointer-events: none;
+    position: absolute;
+    z-index: 100;
+
+    &.active {
+        pointer-events: all;
+        opacity: 1;
+        z-index: 10000;
+    }
+
+    .point {
+        width: 0;
+        position: absolute;
+        height: 0;
+    }
+
+    .point-inner {
+        @include absolute(-$pointer-size * .5, -$pointer-size * .5, null, null);
+        width: $pointer-size;
+        border: 2px solid #666;
+        border-radius: 20px;
+        height: $pointer-size;
+        position: absolute;
+    }
+
+    svg {
+        @include absolute(null, 0, 0, 0);
+    }
+
+    &.red {
+        .point-inner {
+            border-color: red;
+        }
+
+        svg {
+            stroke: red;
+        }
+    }
+
+    &.green {
+        .point-inner {
+            border-color: green;
+        }
+
+        svg {
+            stroke: green;
+        }
+    }
+
+    &.blue {
+        .point-inner {
+            border-color: blue;
+        }
+
+        svg {
+            stroke: blue;
+        }
+    }
+}

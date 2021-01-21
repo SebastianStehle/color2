@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="header text-center">
+        <button class="btn ml-1 mr-1" [class.btn-primary]="channel === selectedChannel" *ngFor="let channel of channels" (click)="selectChannel(channel)">
+            {{channel.name}}
+        </button>
+    </div>
+
+    <div class="drag-container">
+        <div class="editor" [style.width]="width" [style.height]="height">
+            <div class="channel" [class.active]="channel === selectedChannel" [class]="channel.class" *ngFor="let channel of channels; let j = index">
+                <svg [attr.width]="width" [attr.height]="height" viewport="0 0 500 300">
+                    <path [attr.d]="elements[j].svg" fill="none" stroke-width="2" />
+                </svg>
+
+                <div *ngFor="let point of channel.points; let i = index" class="point" 
+                    cdkDrag 
+                    cdkDragBoundary=".drag-container"
+                    cdkDragLockAxis="y"
+                    (cdkDragMoved)="onMoved(i, channel, $event)"
+                    (cdkDragEnded)="onMoveEnded(i, channel, $event)"
+                    [cdkDragFreeDragPosition]="elements[j].points[i + 1]">
+                    <div class="point-inner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
