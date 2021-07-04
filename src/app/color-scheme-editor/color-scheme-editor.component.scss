@@ -30,6 +30,7 @@ $color-blue: blue;
 .channel {
     @include absolute(0, 0, 0, 0);
     border-radius: 0;
+    cursor: move;
     opacity: .2;
     pointer-events: none;
     position: absolute;
@@ -103,6 +104,7 @@ $color-blue: blue;
 
 .time {
     @include absolute(-25px);
+    background-color: white;
     margin-left: -50px;
     text-align: center;
     text-decoration: none;
@@ -111,6 +113,7 @@ $color-blue: blue;
 
 .percentage {
     @include absolute(null, null, null, -105px);
+    background-color: white;
     height: 20px;
     line-height: 20px;
     margin-top: -10px;

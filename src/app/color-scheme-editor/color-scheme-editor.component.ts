@@ -124,9 +124,11 @@ export class ColorSchemeEditorComponent {
     }
 
     public onRemove(index: number, channel: ColorChannel) {
-        channel.points.splice(index, 1);
+        if (confirm('Löschen')) {
+            channel.points.splice(index, 1);
 
-        this.updateChannel(channel);
+            this.updateChannel(channel);
+        }
     }
 
     public onAdd(channel: ColorChannel, event: MouseEvent) {
@@ -168,15 +170,13 @@ export class ColorSchemeEditorComponent {
     }
 
     public getPath(points: SVG.Point[]) {
-        let path = `M0,${this.sizeY}`;
+        let path = `M${points[0].x},${points[0].y}`;
 
         for (let i = 0; i < points.length; i++) {
             const { x, y } = points[i];
             
             path += ` L${x},${y}`;
         }
-
-        path += ` L${this.sizeX},${this.sizeY}`;
 
         return path;
     }

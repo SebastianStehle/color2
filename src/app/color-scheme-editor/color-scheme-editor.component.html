@@ -7,14 +7,19 @@
 
     <div class="drag-container">
         <div class="editor" [style.width]="width" [style.height]="height">
-            <app-grid [xSegments]="24" [ySegments]="10"></app-grid>
+            <app-grid 
+                [xSegments]="24" 
+                [ySegments]="10"
+                [xLabels]="['00:00', '12:00', '24:00']"
+                [yLabels]="['0%', '50%', '100%']">
+            </app-grid>
         
             <div class="channel" *ngFor="let channel of channels; let j = index"
                 [class.active]="channel === selectedChannel"
                 [class]="channel.class"
                 (dblclick)="onAdd(channel, $event)">
     
-                <svg [attr.width]="width" [attr.height]="height" viewport="0 0 500 300">
+                <svg [attr.width]="width" [attr.height]="height">
                     <path [attr.d]="elements[j].svg" fill="none" stroke-width="2" />
                 </svg>
 

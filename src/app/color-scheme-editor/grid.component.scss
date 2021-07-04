@@ -23,4 +23,25 @@ $color-gray: #ddd;
     @include absolute(0, 0, 0, 0);
     border-left: 1px solid #777;
     border-bottom: 1px solid #777;
+    pointer-events: none;
+}
+
+
+
+.x-label {
+    @include absolute(null, null, -25px);
+    margin-left: -50px;
+    text-align: center;
+    text-decoration: none;
+    width: 100px;
+}
+
+.y-label {
+    @include absolute(null, null, null, -105px);
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: -10px;
+    text-align: right;
+    text-decoration: none;
+    width: 100px;
 }
