@@ -17,13 +17,15 @@
 }
 
 .editor {
-    border: 1px solid #666;
     margin-left: auto;
     margin-right: auto;
     position: relative;
 }
 
 $pointer-size: 14px;
+
+$color-gray: #ddd;
+$color-blue: blue;
 
 .channel {
     @include absolute(0, 0, 0, 0);
@@ -87,4 +89,32 @@ $pointer-size: 14px;
             stroke: blue;
         }
     }
+}
+
+.h-line {
+    @include absolute(null, 0, null, 0);
+    border-top: 2px solid $color-blue;
+}
+
+.v-line {
+    @include absolute(0, null, 0, null);
+    border-left: 2px solid $color-blue;
+}
+
+.time {
+    @include absolute(-25px);
+    margin-left: -50px;
+    text-align: center;
+    text-decoration: none;
+    width: 100px;
+}
+
+.percentage {
+    @include absolute(null, null, null, -105px);
+    height: 20px;
+    line-height: 20px;
+    margin-top: -10px;
+    text-align: right;
+    text-decoration: none;
+    width: 100px;
 }

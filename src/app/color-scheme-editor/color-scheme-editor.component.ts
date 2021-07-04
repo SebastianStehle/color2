@@ -31,6 +31,11 @@ export class ColorSchemeEditorComponent {
     public sizeX = 500;
     public sizeY = 300;
 
+    public currentX = 0;
+    public currentY = 0;
+
+    public dragging = false;
+
     public get width() {
         return `${this.sizeX}px`;
     }
@@ -91,6 +96,11 @@ export class ColorSchemeEditorComponent {
     }
 
     public onMoved(index: number, channel: ColorChannel, event: CdkDragEnd) {
+        this.dragging = true;
+
+        this.currentX = event.source.freeDragPosition.x + event.distance.x;
+        this.currentY = event.source.freeDragPosition.y + event.distance.y;
+
         const points = this.getPoints(channel);
 
         points[index + 1].x += event.distance.x;
@@ -102,11 +112,19 @@ export class ColorSchemeEditorComponent {
     }
 
     public onMoveEnded(index: number, channel: ColorChannel, event: CdkDragEnd) {
+        this.dragging = false;
+    
         const newX = Math.min(this.sizeX, Math.max(event.source.freeDragPosition.x + event.distance.x, 0));
         const newY = Math.min(this.sizeY, Math.max(event.source.freeDragPosition.y + event.distance.y, 0));
 
         channel.points[index][0] = (newX / this.sizeX) * 100;
         channel.points[index][1] = (newY / this.sizeY) * 100;
+
+        this.updateChannel(channel);
+    }
+
+    public onRemove(index: number, channel: ColorChannel) {
+        channel.points.splice(index, 1);
 
         this.updateChannel(channel);
     }
