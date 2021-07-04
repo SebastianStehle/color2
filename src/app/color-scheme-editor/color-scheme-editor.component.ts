@@ -10,61 +10,11 @@ interface ColorChannel {
 
     class: string;
 
-    points: number[];
+    points: number[][];
 }
 
 module SVG {
-    const SMOOTHING = .2;
-
     export type Point = { x: number, y: number };
-
-    const line = (pointA: Point, pointB: Point) => {
-        const lengthX = pointB.x - pointA.x;
-        const lengthY = pointB.y - pointA.y;
-
-        const length = Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2));
-
-        return { length, angle: Math.atan2(lengthY, lengthX) };
-    }
-
-    const controlPoint = (current: Point, previous: Point, next: Point, reverse: boolean) => {
-
-        // When 'current' is the first or last point of the array
-        // 'previous' or 'next' don't exist.
-        // Replace with 'current'
-        const p = previous || current
-        const n = next || current
-
-        // Properties of the opposed-line
-        const o = line(p, n)
-
-        // If is end-control-point, add PI to the angle to go backward
-        const angle = o.angle + (reverse ? Math.PI : 0)
-        const length = o.length * SMOOTHING
-
-        // The control point position is relative to the current point
-        const x = current.x + Math.cos(angle) * length
-        const y = current.y + Math.sin(angle) * length
-
-        return { x, y };
-    }
-
-    const bezierCommand = (point: Point, i: number, a: Point[]) => {
-        // start control point
-        const cps = controlPoint(a[i - 1], a[i - 2], point, false);
-
-        // end control point
-        const cpe = controlPoint(point, a[i - 1], a[i + 1], true)
-
-        return `C ${cps.x},${cps.y} ${cpe.x},${cpe.y} ${point.x},${point.y}`
-    }
-
-    export const svgPath = (points: Point[]) => {
-        // build the d attributes by looping over the points
-        const d = points.reduce((acc, point, i, a) => i === 0 ? `M ${point.x},${point.y}` : `${acc} ${bezierCommand(point, i, a)}` , '')
-
-        return d;
-    }
 }
 
 @Component({
@@ -100,33 +50,28 @@ export class ColorSchemeEditorComponent {
             channels: [{
                 name: 'Red',
                 points: [
-                    10,
-                    20,
-                    10,
-                    40
+                    [10, 10],
+                    [20, 20],
+                    [30, 10],
+                    [40, 40]
                 ],
                 class: 'red'
             }, {
                 name: 'Green',
                 points: [
-                    20,
-                    10,
-                    40,
-                    70
+                    [10, 10],
+                    [20, 20],
+                    [30, 10],
+                    [40, 40]
                 ],
                 class: 'green'
             }, {
                 name: 'Blue',
                 points: [
-                    30,
-                    25,
-                    12,
-                    50,
-                    12,
-                    12,
-                    54,
-                    27,
-                    44
+                    [10, 10],
+                    [20, 20],
+                    [30, 10],
+                    [40, 40]
                 ],
                 class: 'blue'
             }]
@@ -137,7 +82,7 @@ export class ColorSchemeEditorComponent {
         for (const channel of this.scheme.channels) {
             const points = this.getPoints(channel);
 
-            this.elements.push({ points, svg: SVG.svgPath(points) });
+            this.elements.push({ points, svg: this.getPath(points) });
         }
     }
 
@@ -148,26 +93,43 @@ export class ColorSchemeEditorComponent {
     public onMoved(index: number, channel: ColorChannel, event: CdkDragEnd) {
         const points = this.getPoints(channel);
 
+        points[index + 1].x += event.distance.x;
         points[index + 1].y += event.distance.y;
 
-        this.elements[this.channels.indexOf(channel)].svg =  SVG.svgPath(points);
+        points.sort((rhs, lhs) => rhs.x - lhs.x);
+
+        this.elements[this.channels.indexOf(channel)].svg =  this.getPath(points);
     }
 
     public onMoveEnded(index: number, channel: ColorChannel, event: CdkDragEnd) {
-        let newY = event.source.freeDragPosition.y + event.distance.y;
+        const newX = Math.min(this.sizeX, Math.max(event.source.freeDragPosition.x + event.distance.x, 0));
+        const newY = Math.min(this.sizeY, Math.max(event.source.freeDragPosition.y + event.distance.y, 0));
 
-        if (newY < 0) {
-            newY = 0;
-        } else if (newY > this.sizeY) {
-            newY = this.sizeY;
-        }
+        channel.points[index][0] = (newX / this.sizeX) * 100;
+        channel.points[index][1] = (newY / this.sizeY) * 100;
 
-        channel.points[index] = (newY / this.sizeY) * 100;
+        this.updateChannel(channel);
+    }
 
+    public onAdd(channel: ColorChannel, event: MouseEvent) {
+        const x = event.offsetX;
+        const y = event.offsetY;
+
+        channel.points.push([
+            (x / this.sizeX) * 100,
+            (y / this.sizeY) * 100,
+        ]);
+
+        this.updateChannel(channel);
+    }
+
+    private updateChannel(channel: ColorChannel) {
+        channel.points.sort((lhs, rhs) => lhs[0] - rhs[0]);
+        
         const element = this.elements[this.channels.indexOf(channel)];
-
-        element.points[index + 1].y = newY;
-        element.svg = SVG.svgPath(element.points);
+        
+        element.points = this.getPoints(channel);
+        element.svg = this.getPath(element.points);
     }
 
     private getPoints(channel: ColorChannel) {
@@ -175,13 +137,9 @@ export class ColorSchemeEditorComponent {
             x: 0, y: this.sizeY
         }];
 
-        for (let i = 0; i < channel.points.length; i++) {
-            const totalPositions = channel.points.length;
-    
-            const widthPerPoint = this.sizeX / totalPositions;
-    
-            const x = Math.round(widthPerPoint * (i + .5));
-            const y = Math.round(this.sizeY * (channel.points[i] / 100));
+        for (let i = 0; i < channel.points.length; i++) {    
+            const x = Math.round(this.sizeX * (channel.points[i][0] / 100));
+            const y = Math.round(this.sizeY * (channel.points[i][1] / 100));
 
             points.push({ x, y });
         }
@@ -189,5 +147,19 @@ export class ColorSchemeEditorComponent {
         points.push({ x: this.sizeX, y: this.sizeY });
 
         return points;
+    }
+
+    public getPath(points: SVG.Point[]) {
+        let path = `M0,${this.sizeY}`;
+
+        for (let i = 0; i < points.length; i++) {
+            const { x, y } = points[i];
+            
+            path += ` L${x},${y}`;
+        }
+
+        path += ` L${this.sizeX},${this.sizeY}`;
+
+        return path;
     }
 }
