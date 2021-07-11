@@ -5,8 +5,8 @@
         </button>
     </div>
 
-    <div class="drag-container">
-        <div class="editor" [style.width]="width" [style.height]="height">
+    <div class="drag-container" (appResized)="onResize($event)">
+        <div class="editor" [style.width]="sizeX | layoutPixel" [style.height]="sizeY | layoutPixel">
             <app-grid 
                 [xSegments]="24" 
                 [ySegments]="10"
@@ -19,7 +19,7 @@
                 [class]="channel.class"
                 (dblclick)="onAdd(channel, $event)">
     
-                <svg [attr.width]="width" [attr.height]="height">
+                <svg [attr.width]="sizeX | layoutPixel" [attr.height]="sizeY | layoutPixel">
                     <path [attr.d]="elements[j].svg" fill="none" stroke-width="2" />
                 </svg>
 
@@ -29,20 +29,21 @@
                     (cdkDragMoved)="onMoved(i, channel, $event)"
                     (cdkDragEnded)="onMoveEnded(i, channel, $event)"
                     [cdkDragFreeDragPosition]="elements[j].points[i + 1]"
-                    (onLongPress)="onRemove(i, channel)" [duration]="3000">
+                    (longPress)="onRemove(i, channel)" 
+                    [longPressDuration]="3000">
                     <div class="point-inner"></div>
                 </div>
             </div>
 
             <div *ngIf="dragging">
-                <div class="v-line" [style.left]="currentX + 'px'"></div>
-                <div class="h-line" [style.top]="currentY + 'px'"></div>
+                <div class="v-line" [style.left]="currentX | layoutPixel"></div>
+                <div class="h-line" [style.top]="currentY | layoutPixel"></div>
 
-                <div class="percentage" [style.top]="currentY + 'px'">
-                    {{currentY}}
+                <div class="percentage" [style.top]="currentY | layoutPixel">
+                    {{currentYValue}}
                 </div>
  
-                <div class="time" [style.left]="currentX + 'px'">
+                <div class="time" [style.left]="currentX | layoutPixel">
                     {{currentX}}
                 </div>
             </div>

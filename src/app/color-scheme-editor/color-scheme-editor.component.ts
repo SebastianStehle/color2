@@ -28,21 +28,15 @@ export class ColorSchemeEditorComponent {
 
     public selectedChannel: ColorChannel;
 
-    public sizeX = 500;
-    public sizeY = 300;
+    public sizeX = 0;
+    public sizeY = 0;
 
     public currentX = 0;
+    public currentXValue = '';
     public currentY = 0;
+    public currentYValue = '';
 
     public dragging = false;
-
-    public get width() {
-        return `${this.sizeX}px`;
-    }
-
-    public get height() {
-        return `${this.sizeY}px`;
-    }
 
     public get channels() {
         return this.scheme.channels;
@@ -95,11 +89,21 @@ export class ColorSchemeEditorComponent {
         this.selectedChannel = channel;
     }
 
+    public onResize(event: ClientRect) {
+        this.sizeX = event.width;
+        this.sizeY = event.width * .6;
+
+        for (let channel of this.scheme.channels) {
+            this.updateChannel(channel);
+        }
+    }
+
     public onMoved(index: number, channel: ColorChannel, event: CdkDragEnd) {
         this.dragging = true;
 
         this.currentX = event.source.freeDragPosition.x + event.distance.x;
         this.currentY = event.source.freeDragPosition.y + event.distance.y;
+        this.currentYValue = Math.round((this.sizeY - this.currentY) / this.sizeY * 100) + ' %';
 
         const points = this.getPoints(channel);
 

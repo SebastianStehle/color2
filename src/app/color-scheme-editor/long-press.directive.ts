@@ -7,7 +7,7 @@ import {
     HostListener
 } from '@angular/core';
 
-@Directive({ selector: '[onLongPress]' })
+@Directive({ selector: '[longPress]' })
 export class LongPressDirective {
     private pressing = false;
     private pressingLong = false;
@@ -15,26 +15,26 @@ export class LongPressDirective {
     private mouseX: number = 0;
     private mouseY: number = 0;
 
-    @Input()
+    @Input('longPressDuration')
     duration: number = 500;
 
     @Output()
-    onLongPress: EventEmitter<any> = new EventEmitter();
+    longPress: EventEmitter<any> = new EventEmitter();
     
     @Output()
-    onLongPressing: EventEmitter<any> = new EventEmitter();
+    longPressing: EventEmitter<any> = new EventEmitter();
     
     @Output() 
-    onLongPressEnd: EventEmitter<any> = new EventEmitter();
+    longPressEnd: EventEmitter<any> = new EventEmitter();
 
 
     @HostBinding('class.press')
-    get press() { 
+    get pressClass() { 
         return this.pressing; 
     }
 
     @HostBinding('class.longpress')
-    get longPress() { 
+    get longPressClass() { 
         return this.pressingLong;
     }
 
@@ -53,7 +53,7 @@ export class LongPressDirective {
         this.timeout = setTimeout(() => {
             this.pressingLong = true;
             
-            this.onLongPress.emit(event);
+            this.longPress.emit(event);
 
             this.loop(event);
         }, this.duration);
@@ -81,7 +81,7 @@ export class LongPressDirective {
     loop(event: MouseEvent) {
         if (this.pressingLong) {
             this.timeout = setTimeout(() => {
-                this.onLongPressing.emit(event);
+                this.longPressing.emit(event);
                 this.loop(event);
             }, 50);
         }
@@ -93,6 +93,6 @@ export class LongPressDirective {
         this.pressingLong = false;
         this.pressing = false;
 
-        this.onLongPressEnd.emit(true);
+        this.longPressEnd.emit(true);
     }
 }
